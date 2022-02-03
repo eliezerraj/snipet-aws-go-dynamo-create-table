@@ -15,7 +15,7 @@ AWS_ACCESS_SECRET: "AWS_ACCESS_SECRET"
 3.2 Model 2 - WITH GSI
 
 Ex:
-go run . --table Invoice_Tenant --model 1
+go run . --table account --model 1
 
 or
 

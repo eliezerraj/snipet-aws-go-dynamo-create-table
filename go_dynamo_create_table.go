@@ -10,7 +10,6 @@ import (
     "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
-
 )
 
 func main(){
@@ -64,25 +63,29 @@ func createTable(svc *dynamodb.DynamoDB, tableName *string, model *string) {
 
 	var input =  &dynamodb.CreateTableInput{}
 
+	var pk_name = *tableName + "_id"
+	var sk_name =  "issuer_id"
+	var gsi_name =  "pk_tenant_id"
+
 	if *model == "1" {
 		input = &dynamodb.CreateTableInput{
 			AttributeDefinitions: []*dynamodb.AttributeDefinition{
 				{
-					AttributeName: aws.String("pk"),
+					AttributeName: aws.String(pk_name),
 					AttributeType: aws.String("S"),
 				},
 				{
-					AttributeName: aws.String("sk"),
+					AttributeName: aws.String(sk_name),
 					AttributeType: aws.String("S"),
 				},
 			},
 			KeySchema: []*dynamodb.KeySchemaElement{
 				{
-					AttributeName: aws.String("pk"),
+					AttributeName: aws.String(pk_name),
 					KeyType:       aws.String("HASH"),
 				},
 				{
-					AttributeName: aws.String("sk"),
+					AttributeName: aws.String(sk_name),
 					KeyType:       aws.String("RANGE"),
 				},
 			},
@@ -96,25 +99,25 @@ func createTable(svc *dynamodb.DynamoDB, tableName *string, model *string) {
 		input = &dynamodb.CreateTableInput{
 			AttributeDefinitions: []*dynamodb.AttributeDefinition{
 				{
-					AttributeName: aws.String("pk"),
+					AttributeName: aws.String(pk_name),
 					AttributeType: aws.String("S"),
 				},
 				{
-					AttributeName: aws.String("sk"),
+					AttributeName: aws.String(sk_name),
 					AttributeType: aws.String("S"),
 				},
 				{
-					AttributeName: aws.String("pk_gsi"),
+					AttributeName: aws.String(gsi_name),
 					AttributeType: aws.String("S"),
 				},
 			},
 			KeySchema: []*dynamodb.KeySchemaElement{
 				{
-					AttributeName: aws.String("pk"),
+					AttributeName: aws.String(pk_name),
 					KeyType:       aws.String("HASH"),
 				},
 				{
-					AttributeName: aws.String("sk"),
+					AttributeName: aws.String(sk_name),
 					KeyType:       aws.String("RANGE"),
 				},
 			},
@@ -128,11 +131,11 @@ func createTable(svc *dynamodb.DynamoDB, tableName *string, model *string) {
 					IndexName: aws.String("pk_gsi"),
 					KeySchema: []*dynamodb.KeySchemaElement{
 						{
-							AttributeName: aws.String("pk_gsi"),
+							AttributeName: aws.String(gsi_name),
 							KeyType:       aws.String("HASH"),
 						},
 						{
-							AttributeName: aws.String("sk"),
+							AttributeName: aws.String(sk_name),
 							KeyType:       aws.String("RANGE"),
 						},
 					},
@@ -145,6 +148,26 @@ func createTable(svc *dynamodb.DynamoDB, tableName *string, model *string) {
 					},
 				},
 			},
+		}
+	} else if *model == "3" {
+		input = &dynamodb.CreateTableInput{
+			AttributeDefinitions: []*dynamodb.AttributeDefinition{
+				{
+					AttributeName: aws.String(pk_name),
+					AttributeType: aws.String("S"),
+				},
+			},
+			KeySchema: []*dynamodb.KeySchemaElement{
+				{
+					AttributeName: aws.String(pk_name),
+					KeyType:       aws.String("HASH"),
+				},
+			},
+			ProvisionedThroughput: &dynamodb.ProvisionedThroughput{
+				ReadCapacityUnits:  aws.Int64(1),
+				WriteCapacityUnits: aws.Int64(1),
+			},
+			TableName: aws.String(*tableName),
 		}
 	}
 
